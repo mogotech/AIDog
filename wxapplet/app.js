@@ -1,11 +1,17 @@
+var fetchWechat = require('fetch-wechat');
+var tf = require('@tensorflow/tfjs-core');
+var plugin = requirePlugin('tfjsPlugin');
 //app.js
 App({
   onLaunch: function () {
-    // 展示本地存储能力
-    var logs = wx.getStorageSync('logs') || []
-    logs.unshift(Date.now())
-    wx.setStorageSync('logs', logs)
-    console.log("onLaunch")
+    plugin.configPlugin({
+      // polyfill fetch function
+      fetchFunc: fetchWechat.fetchFunc(),
+      // inject tfjs runtime
+      tf,
+      // provide webgl canvas
+      canvas: wx.createOffscreenCanvas()
+    });
   },
   globalData: {
   }

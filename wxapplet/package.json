@@ -1,0 +1,19 @@
+{
+  "name": "aidog",
+  "version": "1.0.0",
+  "description": "AIDog wxapplet",
+  "main": "app.js",
+  "devDependencies": {
+    "miniprogram-api-typings": "^2.6.5-2"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "1.2.2",
+    "fetch-wechat": "0.0.3",
+    "rollup": "^1.17.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
