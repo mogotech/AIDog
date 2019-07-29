@@ -14,13 +14,13 @@ import os
 FLAGS = None
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-IMG_SHAPE = (299, 299, 3)
+IMG_SHAPE = (224, 224, 3)
 BATCH_SIZE = 32
 
 
 def preprocess_image(image):
   image = tf.image.decode_jpeg(image, channels=3)
-  image = tf.image.resize(image, [299, 299])
+  image = tf.image.resize(image, [224, 224])
   image /= 255.0  # normalize to [0,1] range
   # normalized to the[-1, 1] range
   image = 2 * image - 1
@@ -34,15 +34,9 @@ def load_and_preprocess_image(path):
 
 
 def build_model(num_classes):
-  # Create the base model from the pre-trained model Inception V3
-  base_model = keras.applications.InceptionV3(input_shape=IMG_SHAPE, include_top=False)
+  # Create the base model from the pre-trained model mobilenet V2
+  base_model = keras.applications.MobileNetV2(input_shape=IMG_SHAPE, include_top=False, weights='imagenet')
   base_model.trainable = False
-  # Unfreeze all layers of InceptionV3
-  # base_model.trainable = True
-
-  # Refreeze layers until the layers we want to fine-tune
-  # for layer in base_model.layers[:100]:
-  #   layer.trainable = False
 
   # Use a lower learning rate
   lr = 0.0001
@@ -92,6 +86,9 @@ def main(_):
   label_to_index = dict((name, index) for index, name in enumerate(label_names))
   if FLAGS.debug_output:
     print(label_to_index)
+
+  with tf.io.gfile.GFile(FLAGS.output_labels, 'w') as f:
+    f.write('\n'.join(label_names) + '\n')
 
   train_image_labels = [label_to_index[pathlib.Path(path).parent.name] for path in train_images]
   validate_image_labels = [label_to_index[pathlib.Path(path).parent.name] for path in validate_images]
@@ -183,6 +180,12 @@ if __name__ == '__main__':
       type=int,
       default=20,
       help='epochs for training',
+  )
+  parser.add_argument(
+      '--output_labels',
+      type=str,
+      default='/tmp/output_labels.txt',
+      help='Where to save the trained graph\'s labels.'
   )
   parser.add_argument(
       '--saved_model_dir',
